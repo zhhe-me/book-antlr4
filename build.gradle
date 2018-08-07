@@ -1,0 +1,72 @@
+
+ext {
+    antlrVer = '4.7.1'
+    src4gen = 'src/main/antlr-gen'
+}
+
+group = 'me.zhhe.exercise.antlr.book'
+version = '1.0-SNAPSHOT'
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        testImplementation 'junit:junit:4.12'
+    }
+}
+
+configure(subprojects.findAll { it.name != 'common' }) {
+
+    apply plugin: 'antlr'
+
+    ext {
+        genPackage = "me.zhhe.exercise.antlr.book." + project.name + ".parser"
+    }
+
+    configurations {
+        compile {
+            exclude group: 'org.antlr', module: 'antlr4'
+        }
+    }
+
+    dependencies {
+        antlr "org.antlr:antlr4:$antlrVer"
+
+        implementation project(':common')
+    }
+
+    sourceSets {
+        main.java {
+            srcDir src4gen
+        }
+    }
+
+    generateGrammarSource {
+        outputDirectory = file(src4gen + "/" + genPackage.replace('.', '/'))
+        // "me.zhhe.exercise.antlr.book.${project.name}.parser" will cause error. don't know root cause.
+        arguments += ['-package', genPackage]
+        arguments += ['-visitor']
+
+        doLast {
+            println '=================='
+            println "outputDirectory: $outputDirectory"
+            println "me.zhhe.exercise.antlr.book." + project.name + ".parser"
+        }
+    }
+
+    compileJava {
+        source = src4gen
+    }
+
+    clean {
+        delete src4gen
+    }
+
+}
