@@ -8,6 +8,5 @@ field   :   TEXT
         |
         ;
 
-fragment
-TEXT    :   ~[,\n\r\"]+ ;
+TEXT    :   ~[,\n\r"]+ ;
 STRING  :   '"' ('""'|~'"')* '"' ;
